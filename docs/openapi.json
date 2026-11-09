@@ -68,6 +68,42 @@
             }
           }
         }
+      },
+      "get": {
+        "summary": "Subjects",
+        "operationId": "subjects_api_v1_subjects_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/sessions": {
@@ -275,6 +311,12 @@
             "type": "string",
             "format": "binary",
             "title": "Reference"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Display Name",
+            "default": ""
           }
         },
         "type": "object",

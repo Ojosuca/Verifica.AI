@@ -29,10 +29,15 @@ verificados. Não precisa de Node, Docker nem GPU para executar o sistema.
 3. Em **Configurações**, informe a mesma URL HTTPS como URL da API e cole a
    chave administrativa mostrada no Terminal. Use apenas em seus dispositivos
    de teste: essa chave permite administrar todos os cadastros. Não a envie no chat.
-4. Em **Identidades**, cadastre uma referência JPEG/PNG com um identificador novo,
-   como `teste_001`. No iPhone/iPad, fotos HEIC precisam ser exportadas para JPEG.
-5. Em **Verificação 1:1**, use o mesmo identificador, marque o consentimento,
-   crie uma sessão, permita a câmera e siga o desafio durante a gravação.
+4. Em **Identidades**, use **Cadastrar rosto**. Escolha uma foto JPEG/PNG ou use
+   a opção de tirar foto no celular/tablet. Confira a prévia e informe um
+   identificador novo, como `teste_001`. Fotos HEIC precisam ser exportadas para
+   JPEG. A interface reduz fotos grandes para no máximo 1.600 pixels no maior lado.
+5. Toque em **Cadastrar e verificar**. O rosto será selecionado na tela seguinte.
+   Marque a autorização da captura e toque em **Gravar e verificar**: o console
+   abre a câmera, prepara a sessão e grava 6 segundos com instruções sequenciais.
+   Não é obrigatório preparar uma sessão separadamente. Bloqueios da câmera e
+   erros da API aparecem na própria tela e permitem tentar novamente.
 6. Repita a conexão em cada aparelho. As credenciais ficam na memória da aba;
    recarregar a página exige conectar novamente.
 
@@ -40,6 +45,25 @@ Os exemplos `colab_001` etc. são sintéticos e não equivalem a referências
 cadastradas na API. O resultado positivo experimental é `review_required`:
 não aprova ponto automaticamente. Ainda é necessário validar a captura real
 em Android e iOS; os testes de servidor não comprovam compatibilidade da câmera.
+
+As telas de Identidades e Verificação consultam os cadastros na API; por isso,
+outros aparelhos conectados ao mesmo Mac podem selecionar a mesma referência.
+Use **Atualizar lista** para buscar cadastros feitos em outro aparelho após a conexão.
+O nome de exibição passa a ser salvo junto ao identificador. Cadastros antigos
+continuam válidos e aparecem pelo identificador quando não possuem nome salvo.
+
+## Atualizar uma instalação existente
+
+Encerre os serviços com Ctrl+C e, dentro da pasta do projeto, execute:
+
+```sh
+git pull --ff-only
+bash scripts/start-mac.sh
+```
+
+Abra o novo link HTTPS e recarregue a página nos aparelhos para carregar o JavaScript
+atualizado. Conecte a API novamente. A atualização acrescenta o campo de nome ao
+banco existente automaticamente; preserva os templates, cadastros e chaves.
 
 ## Parar, reiniciar e guardar os dados
 

@@ -7,3 +7,32 @@
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 .result-box details{margin-top:16px;font-size:11px}.result-box summary{cursor:pointer;color:var(--brand);margin-bottom:12px}.result-box pre{border-radius:7px;max-height:300px;font-size:10px}
+
+.face-flow{grid-template-columns:minmax(290px,1fr) minmax(0,1.4fr);align-items:start}
+.face-flow .pad-panel h2{margin-bottom:16px}
+.face-flow label{font-size:14px;line-height:1.5}
+.face-flow input:not([type=checkbox]),.face-flow select,#identity-form input:not([type=checkbox]){font-size:16px;min-height:44px}
+.face-flow .check,#identity-form .check{font-size:14px;line-height:1.6}
+.face-flow .check input,#identity-form .check input{width:18px;height:18px;flex-shrink:0}
+.face-flow .btn,#identity-form .btn{min-height:44px}
+.face-flow .api-status,.face-flow .capture-guide{font-size:14px;line-height:1.7;color:var(--muted);overflow-wrap:anywhere}
+.face-flow .note{font-size:14px;color:#4f6549}
+.capture-panel{min-width:0}
+.capture-panel .camera{min-height:360px}
+.capture-panel .camera video{height:100%;object-fit:contain}
+.capture-panel .camera video:not(.hidden)~.camera-frame svg{visibility:hidden}
+.capture-panel .camera p{font-size:16px;line-height:1.5;text-align:center;max-width:95%}
+.capture-panel .camera-badge{font-size:12px}
+.capture-panel .camera-tools{flex-wrap:wrap;gap:14px}
+.capture-panel .camera-tools .actions{flex-wrap:wrap;flex:1;justify-content:flex-end}
+.capture-panel .camera-tools p{font-size:14px}
+.capture-hint{font-size:14px;line-height:1.7;color:var(--muted);margin:0;padding:0 22px 18px;overflow-wrap:anywhere}
+.capture-panel .result-box strong{font-size:16px}
+.capture-panel .result-box p{font-size:14px}
+#identity-dialog{max-height:90dvh;overflow-y:auto}
+#identity-form label,#identity-form p{font-size:14px;line-height:1.6}
+#identity-form .form-note{font-size:14px!important;color:var(--muted)!important}
+#identity-form #identity-error:empty{display:none}
+#identity-form #identity-error{font-size:14px;overflow-wrap:anywhere}
+#reference-preview{display:block;width:100%;height:180px;object-fit:contain;background:#f0f5ed;margin:0 0 20px;border-radius:7px}
+@media(max-width:850px){.face-flow{grid-template-columns:1fr}.face-flow .pad-panel{padding:22px}.capture-panel .camera-tools .actions{width:100%}.capture-panel .camera-tools .btn{flex:1;font-size:14px}.face-flow .step{font-size:12px}}

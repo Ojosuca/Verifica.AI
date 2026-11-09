@@ -163,3 +163,36 @@ def test_pad_rejects_tampered_signature(client, monkeypatch):
 def test_local_console_assets(client):
     for path in ('/', '/style.css', '/app.js', '/openapi.json'):
         assert client.get(path).status_code == 200
+
+
+def test_subjects_list_auth_and_shared_metadata_without_biometrics(client):
+    assert client.get('/api/v1/subjects').status_code == 401
+    assert client.get('/api/v1/subjects', headers=AUTH).json()['subjects'] == []
+    _, png = cv2.imencode('.png', np.zeros((100, 100, 3), np.uint8))
+    response = client.post('/api/v1/subjects', headers=AUTH,
+        data={'subject_id': 'shared_person', 'display_name': 'Ana Silva', 'consent': 'true'},
+        files={'reference': ('reference.png', png.tobytes(), 'image/png')})
+    assert response.status_code == 201
+    # A fresh database connection sees the same persisted metadata.
+    main.init_db()
+    result = client.get('/api/v1/subjects', headers=AUTH).json()
+    assert result['subjects'][0]['subject_id'] == 'shared_person'
+    assert result['subjects'][0]['display_name'] == 'Ana Silva'
+    assert set(result['subjects'][0]) == {'subject_id', 'display_name', 'created'}
+    assert result['has_more'] is False
+    client.delete('/api/v1/subjects/shared_person', headers=AUTH)
+    assert client.get('/api/v1/subjects', headers=AUTH).json()['subjects'] == []
+
+
+def test_existing_database_migration_preserves_templates(tmp_path, monkeypatch):
+    import sqlite3
+    path = tmp_path / 'legacy.db'
+    monkeypatch.setenv('VERIFICA_DB', str(path))
+    with sqlite3.connect(path) as db:
+        db.execute('CREATE TABLE subjects(id TEXT PRIMARY KEY, template BLOB NOT NULL, created REAL)')
+        db.execute('INSERT INTO subjects VALUES (?, ?, ?)', ('old_person', b'encrypted-reference', 1))
+    main.init_db()
+    main.init_db()
+    with main.db() as db:
+        record = dict(db.execute('SELECT * FROM subjects').fetchone())
+    assert record == {'id': 'old_person', 'template': b'encrypted-reference', 'created': 1, 'display_name': ''}

@@ -48,6 +48,8 @@ def init_db():
         CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY, subject TEXT, nonce TEXT, expires REAL, used INTEGER DEFAULT 0, challenge TEXT);
         CREATE TABLE IF NOT EXISTS events(id TEXT PRIMARY KEY, subject TEXT, status TEXT, created REAL, elapsed INTEGER);
         ''')
+        if 'display_name' not in {row['name'] for row in c.execute('PRAGMA table_info(subjects)')}:
+            c.execute("ALTER TABLE subjects ADD COLUMN display_name TEXT NOT NULL DEFAULT ''")
 
 
 def cipher():
@@ -197,7 +199,8 @@ def health():
 
 @app.post('/api/v1/subjects', dependencies=[Depends(auth)], status_code=201)
 async def enroll(subject_id: str = Form(..., min_length=1, max_length=128, pattern=r'^[a-zA-Z0-9_.@-]+$'),
-                 consent: bool = Form(...), reference: UploadFile = File(...)):
+                 consent: bool = Form(...), reference: UploadFile = File(...),
+                 display_name: str = Form(default='', max_length=80)):
     if not consent:
         raise HTTPException(422, 'O consentimento é obrigatório.')
     encryptor = cipher()
@@ -206,10 +209,18 @@ async def enroll(subject_id: str = Form(..., min_length=1, max_length=128, patte
         emb = await asyncio.to_thread(app.state.engine.embedding, cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR))
     try:
         with db() as c:
-            c.execute('INSERT INTO subjects VALUES (?, ?, ?)', (subject_id, encryptor.encrypt(emb.tobytes()), time.time()))
+            c.execute('INSERT INTO subjects(id, template, created, display_name) VALUES (?, ?, ?, ?)',
+                      (subject_id, encryptor.encrypt(emb.tobytes()), time.time(), display_name.strip()))
     except sqlite3.IntegrityError:
         raise HTTPException(409, 'Identificador já cadastrado. Exclua a referência antes de substituí-la.')
     return {'subject_id': subject_id, 'status': 'enrolled'}
+
+
+@app.get('/api/v1/subjects', dependencies=[Depends(auth)])
+def subjects():
+    with db() as c:
+        rows = c.execute('SELECT id AS subject_id, display_name, created FROM subjects ORDER BY created DESC, id LIMIT 1001').fetchall()
+    return {'subjects': [dict(row) for row in rows[:1000]], 'has_more': len(rows) > 1000}
 
 
 @app.post('/api/v1/sessions', dependencies=[Depends(auth)], status_code=201)

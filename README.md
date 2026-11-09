@@ -41,13 +41,19 @@ O console remoto exige uma URL HTTPS acessível ao navegador e origem CORS expl�
 
 ## Fluxo de validação
 
-1. Cadastre uma referência consentida com `POST /api/v1/subjects` (`subject_id`, `consent`, `reference` JPEG/PNG em multipart).
+1. Cadastre uma referência consentida com `POST /api/v1/subjects` (`subject_id`, `consent`, `reference` JPEG/PNG e `display_name` opcional em multipart). `GET /api/v1/subjects`, autenticado, lista até 1.000 referências com nome, identificador e data, sem fotos ou templates.
 2. Crie uma sessão com `POST /api/v1/sessions` (`subject_id`, `consent` em JSON).
 3. Oriente a pessoa pelo desafio retornado: centro e dois movimentos aleatórios de cabeça.
 4. Envie `nonce` e `video` em multipart para `POST /api/v1/sessions/{session_id}/verify`. A sessão é de uso único e expira em 120 segundos.
 5. Trate `review_required`, `liveness_failed` e `face_mismatch`. **Não transforme `review_required` em presença confirmada.**
 
 A referência é responsabilidade do operador; não há verificação de documento civil nem prova de vida no cadastro. Não se realiza busca 1:N. Templates são criptografados por Fernet e os vídeos temporários são removidos ao final do processamento. Eventos não contêm fotos nem embeddings, mas possuem identificador e devem seguir política de retenção da organização.
+
+No console, **Cadastrar rosto → Cadastrar e verificar** seleciona a referência salva.
+Com a autorização de captura marcada, **Gravar e verificar** prepara câmera e
+sessão automaticamente e orienta os três movimentos durante 6 segundos. A lista
+de referências é consultada na API, inclusive em outros aparelhos. Veja o
+[guia de teste no Mac](docs/TESTAR-NO-MAC.md) para atualizar a instalação.
 
 ## Serviço próprio de liveness e visão
 
@@ -77,14 +83,14 @@ python -m pytest -q
 
 Testes automatizados cobrem contratos, consentimento, autenticação, criptografia, exclusão, nonce, expiração, uso único, respostas assinadas, limites e bloqueio de aprovação automática experimental. Usam motores controlados e não medem qualidade biométrica nem resistência a ataques. Validação com câmeras e pessoas reais é uma etapa separada.
 
-Os 14 testes Python incluem decodificação sequencial de vídeo sem depender dos metadados de duração, ausentes em algumas capturas WebM de navegador. Quatro testes de estado da interface usam DOM simulado com JSDOM:
+Os 20 testes Python incluem decodificação sequencial de vídeo sem depender dos metadados de duração, ausentes em algumas capturas WebM de navegador. Onze testes de estado da interface usam DOM simulado com JSDOM:
 
 ```sh
 npm install
 npm run test:ui
 ```
 
-Cobrem origem sintética/real de exportação, invalidação de sessão após edição, resposta atrasada após navegação e troca de backend sem herdar referências reais. Eles não substituem testes visuais ou com câmera. A publicação do console foi confirmada; a inspeção visual desktop/mobile foi bloqueada nesta sessão por falhas do relay e do controle de navegador.
+Cobrem origem sintética/real de exportação, invalidação e expiração de sessão, resposta atrasada após navegação, troca de backend, cadastro com seleção automática, erros visíveis e gravação com um clique em WebM/MP4 simulado. Também foi exercitado o fluxo de cadastro e gravação no Chromium, com câmera sintética e respostas de API controladas, e inspecionado o layout em larguras de celular e desktop. O vídeo WebM gerado pelo navegador foi decodificado pelo backend. Isso não comprova captura em dispositivos Android/iOS reais nem qualidade biométrica.
 
 ## Modelos e licenças
 
