@@ -15,6 +15,10 @@ Primeira implementação de uma plataforma de validação facial 1:1 com console
 
 ## Executar localmente
 
+Para testar no **Mac, Android, iPhone e iPad**, siga o
+[guia de instalação com link HTTPS](docs/TESTAR-NO-MAC.md).
+O iniciador configura os dois serviços e mantém as chaves e o banco em `.local/`.
+
 Python 3.12 recomendado. Em Linux/macOS:
 
 ```sh
