@@ -35,7 +35,8 @@ verificados. Não precisa de Node, Docker nem GPU para executar o sistema.
    JPEG. A interface reduz fotos grandes para no máximo 1.600 pixels no maior lado.
 5. Toque em **Cadastrar e verificar**. O rosto será selecionado na tela seguinte.
    Marque a autorização da captura e toque em **Gravar e verificar**: o console
-   abre a câmera, prepara a sessão e grava 6 segundos com instruções sequenciais.
+   abre a câmera, prepara a sessão, faz uma contagem de 2 segundos e grava
+   7,2 segundos com instruções sequenciais de 2,4 segundos por movimento.
    Não é obrigatório preparar uma sessão separadamente. Bloqueios da câmera e
    erros da API aparecem na própria tela e permitem tentar novamente.
 6. Repita a conexão em cada aparelho. As credenciais ficam na memória da aba;
@@ -51,6 +52,30 @@ outros aparelhos conectados ao mesmo Mac podem selecionar a mesma referência.
 Use **Atualizar lista** para buscar cadastros feitos em outro aparelho após a conexão.
 O nome de exibição passa a ser salvo junto ao identificador. Cadastros antigos
 continuam válidos e aparecem pelo identificador quando não possuem nome salvo.
+
+### Guia animada e malha facial
+
+Ao ativar a câmera, aguarde o carregamento dos pontos faciais. A seta e o desenho
+mostram a **sua esquerda** ou a **sua direita**, seguindo a ordem do desafio. Vire
+levemente, sem chegar a um perfil completo, e mantenha os olhos visíveis. A barra
+mostra o tempo do movimento; ela não comprova que ele passou na análise da API.
+
+A malha acompanha até 478 pontos detectados na prévia espelhada. A vista
+**3D estimado** usa a profundidade inferida pelo modelo a partir da imagem da
+câmera; não é uma medição por sensor 3D nem uma validação ant fraude. Pontos e
+geometria não são salvos nem enviados por esse rastreador. O vídeo de verificação
+continua sendo enviado ao Mac para a comparação e análise do desafio.
+
+Os recursos ficam em `dist/face/` (aproximadamente 26 MB, incluindo variantes do
+runtime). A primeira abertura pode demorar. Não precisa instalar Node nem baixar
+um modelo adicional manualmente: `git pull --ff-only` já inclui esses arquivos.
+Se o aparelho não conseguir iniciar o rastreador, aparece uma mensagem e a guia
+animada continua disponível, sem exibir pontos fictícios. Os pontos são removidos
+quando a imagem para de atualizar, a aba fica oculta ou você sai da tela.
+
+A preferência de movimento reduzido do aparelho mantém as setas e instruções
+visíveis e remove a rotação repetida do desenho. A velocidade de rastreamento
+depende do aparelho; ainda é necessário testar em seu Android/iPhone/iPad.
 
 ## Atualizar uma instalação existente
 

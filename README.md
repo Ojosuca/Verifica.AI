@@ -51,7 +51,11 @@ A referência é responsabilidade do operador; não há verificação de documen
 
 No console, **Cadastrar rosto → Cadastrar e verificar** seleciona a referência salva.
 Com a autorização de captura marcada, **Gravar e verificar** prepara câmera e
-sessão automaticamente e orienta os três movimentos durante 6 segundos. A lista
+sessão automaticamente, faz uma contagem de 2 segundos e orienta os três movimentos
+durante 7,2 segundos. A seta e o desenho animado indicam a sua esquerda/direita.
+Uma malha de até 478 pontos acompanha o rosto localmente via MediaPipe, com uma
+vista de profundidade estimada. Esse recurso orienta a captura e não substitui a
+análise de identidade/PAD na API. A lista
 de referências é consultada na API, inclusive em outros aparelhos. Veja o
 [guia de teste no Mac](docs/TESTAR-NO-MAC.md) para atualizar a instalação.
 
@@ -83,15 +87,17 @@ python -m pytest -q
 
 Testes automatizados cobrem contratos, consentimento, autenticação, criptografia, exclusão, nonce, expiração, uso único, respostas assinadas, limites e bloqueio de aprovação automática experimental. Usam motores controlados e não medem qualidade biométrica nem resistência a ataques. Validação com câmeras e pessoas reais é uma etapa separada.
 
-Os 20 testes Python incluem decodificação sequencial de vídeo sem depender dos metadados de duração, ausentes em algumas capturas WebM de navegador. Onze testes de estado da interface usam DOM simulado com JSDOM:
+Os testes Python incluem decodificação sequencial de vídeo sem depender dos metadados de duração, ausentes em algumas capturas WebM de navegador. Os testes JavaScript cobrem estado da interface com JSDOM e geometria/lifecycle do rastreador:
 
 ```sh
 npm install
 npm run test:ui
 ```
 
-Cobrem origem sintética/real de exportação, invalidação e expiração de sessão, resposta atrasada após navegação, troca de backend, cadastro com seleção automática, erros visíveis e gravação com um clique em WebM/MP4 simulado. Também foi exercitado o fluxo de cadastro e gravação no Chromium, com câmera sintética e respostas de API controladas, e inspecionado o layout em larguras de celular e desktop. O vídeo WebM gerado pelo navegador foi decodificado pelo backend. Isso não comprova captura em dispositivos Android/iOS reais nem qualidade biométrica.
+Cobrem origem sintética/real de exportação, invalidação e expiração de sessão, resposta atrasada após navegação, troca de backend, cadastro com seleção automática, erros visíveis, gravação com um clique em WebM/MP4 simulado, projeção espelhada, vista de profundidade, interrupção do worker e descarte de quadros atrasados. Também foi exercitado o rastreador real no Chromium usando uma imagem pública de teste e respostas de API controladas: 478 landmarks, malha renderizada, movimentos e envio único. O vídeo WebM de 7,2 segundos gerado pelo navegador foi decodificado pelo backend. Isso não comprova captura em dispositivos Android/iOS reais nem qualidade biométrica.
 
 ## Modelos e licenças
 
 Downloads de [OpenCV Zoo](https://github.com/opencv/opencv_zoo) (YuNet e SFace) e [MobileNet-SSD](https://github.com/chuanqi305/MobileNet-SSD). O instalador verifica SHA-256 fixado no código e imprime o hash de cada artefato. Mudanças upstream com hash divergente são recusadas. Revise as licenças de código, pesos e dados de treino e fixe hashes/versões antes do uso comercial. O modelo de reconhecimento não é treinado neste projeto. A lógica do serviço de desafios e objetos é própria, construída sobre detectores existentes.
+
+O rastreador da prévia usa [MediaPipe Face Landmarker](https://developers.google.com/edge/mediapipe/solutions/vision/face_landmarker), com SDK/WASM/modelo servidos localmente. Versões, fontes, hashes e avisos estão em [`dist/face/`](dist/face/THIRD_PARTY.md). A malha 3D usa profundidade inferida de imagem monocular. O rastreamento roda em worker, com um quadro por vez e entrada reduzida; não participa da decisão biométrica da API.

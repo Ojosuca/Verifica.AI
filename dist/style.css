@@ -36,3 +36,40 @@
 #identity-form #identity-error{font-size:14px;overflow-wrap:anywhere}
 #reference-preview{display:block;width:100%;height:180px;object-fit:contain;background:#f0f5ed;margin:0 0 20px;border-radius:7px}
 @media(max-width:850px){.face-flow{grid-template-columns:1fr}.face-flow .pad-panel{padding:22px}.capture-panel .camera-tools .actions{width:100%}.capture-panel .camera-tools .btn{flex:1;font-size:14px}.face-flow .step{font-size:12px}}
+
+.capture-panel .camera{isolation:isolate;min-height:380px}
+#face-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.capture-panel .camera-frame{pointer-events:none;transition:opacity .25s ease-out}
+.capture-panel .camera[data-tracking=tracking] .camera-frame,.capture-panel .camera[data-tracking=aligned] .camera-frame{opacity:.18}
+.capture-panel .camera[data-tracking=aligned]{outline:2px solid #63cda8;outline-offset:-2px}
+.mesh-status{position:absolute;bottom:12px;left:12px;right:12px;color:#ddf6e9;background:#142c26e6;border:1px solid #466154;border-radius:5px;padding:7px 9px;font-size:12px;line-height:1.4;z-index:3;width:fit-content;max-width:calc(100% - 24px)}
+.motion-guide{display:flex;gap:14px;align-items:center;padding:20px;color:#e5f7ef;background:#17372d}
+.pose-cue{flex:0 0 86px;perspective:180px}
+.pose-diagram{display:block;width:86px;overflow:visible;stroke:#b8f2d9;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pose-head{transform-box:fill-box;transform-origin:center;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.pose-meridian{stroke:#6cbd9d;stroke-width:1}
+.pose-arrow{opacity:0;stroke:#e7ff83;stroke-width:3}
+.motion-guide[data-action=turn_left] .pose-head{transform:rotateY(-30deg)}
+.motion-guide[data-action=turn_right] .pose-head{transform:rotateY(30deg)}
+.motion-guide[data-action=turn_left] .pose-arrow.left,.motion-guide[data-action=turn_right] .pose-arrow.right{opacity:1}
+.motion-guide[data-phase=recording][data-action=turn_left] .pose-head{animation:guide-left 1.2s cubic-bezier(.16,1,.3,1) infinite}
+.motion-guide[data-phase=recording][data-action=turn_right] .pose-head{animation:guide-right 1.2s cubic-bezier(.16,1,.3,1) infinite}
+.motion-copy{flex:1;min-width:0}
+.motion-copy #camera-instruction{font-size:18px;font-weight:600;line-height:1.4;margin:0 0 7px;color:#f0fff7;text-wrap:balance}
+.motion-copy #motion-detail{font-size:14px;line-height:1.5;color:#c2dfd1;margin:0}
+.motion-progress{height:3px;margin-top:13px;background:#486b5a;overflow:hidden;border-radius:2px}
+.motion-progress span{display:block;height:100%;background:#e7ff83;transform:scaleX(0);transform-origin:left;transition:transform .2s linear}
+.depth-tile{width:86px;flex:0 0 86px;margin:0;border:1px solid #527362;border-radius:6px;overflow:hidden;background:#102a22}
+#face-depth{display:block;width:84px;height:82px}
+.depth-tile figcaption{font-size:10px;text-align:center;color:#d0eadb;padding:0 2px 5px}
+.motion-steps{display:flex;gap:8px;list-style:none;margin:0;padding:14px 20px;background:#f0f6f2;counter-reset:scan-step}
+.motion-steps li{flex:1;display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.4;color:#52685a;counter-increment:scan-step}
+.motion-steps li:before{content:counter(scan-step);display:grid;place-items:center;width:21px;height:21px;flex:0 0 21px;border:1px solid #a1b6a7;border-radius:50%;font-size:11px}
+.motion-steps li[aria-current=step]{color:#164c37;font-weight:600}
+.motion-steps li[aria-current=step]:before{background:#1c694d;color:white;border-color:#1c694d}
+.motion-steps li.elapsed{color:#3a6d52}
+.face-feedback{font-size:14px;line-height:1.6;margin:0;padding:12px 20px 0;color:#52685a;min-height:34px}
+@keyframes guide-left{0%,100%{transform:rotateY(-12deg)}65%{transform:rotateY(-40deg) translateX(-4px)}}
+@keyframes guide-right{0%,100%{transform:rotateY(12deg)}65%{transform:rotateY(40deg) translateX(4px)}}
+@media(max-width:580px){.motion-guide{gap:10px;padding:17px 12px}.pose-cue{flex-basis:62px}.pose-diagram{width:62px}.depth-tile{width:66px;flex-basis:66px}#face-depth{width:64px;height:66px}.depth-tile figcaption{font-size:9px}.motion-copy #camera-instruction{font-size:16px}.motion-copy #motion-detail{font-size:13px}.motion-steps{padding:14px 12px;gap:6px}.motion-steps li{font-size:11px}.capture-panel .camera{min-height:350px}}
+@media(prefers-reduced-motion:reduce){.pose-head,.pose-arrow{animation:none!important;transition:none!important}.motion-progress span{transition:none}.motion-guide[data-action=turn_left] .pose-head{transform:rotateY(-30deg)}.motion-guide[data-action=turn_right] .pose-head{transform:rotateY(30deg)}}

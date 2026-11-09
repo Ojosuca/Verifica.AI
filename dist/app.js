@@ -5,6 +5,7 @@ const routes={overview:['Visão geral','overview'],verify:['Verificação 1:1','
 const sample=[{id:'vrf_8f2a91',name:'Mariana Costa',subject:'colab_001',status:'approved',date:'Hoje, 14:32:08',ms:842,initials:'MC'},{id:'vrf_7c4b28',name:'Pedro Almeida',subject:'colab_002',status:'approved',date:'Hoje, 14:28:45',ms:916,initials:'PA'},{id:'vrf_6e9d13',name:'Juliana Santos',subject:'colab_003',status:'liveness_failed',date:'Hoje, 14:25:12',ms:1204,initials:'JS'},{id:'vrf_5a1c74',name:'Lucas Ferreira',subject:'colab_004',status:'approved',date:'Hoje, 14:21:56',ms:789,initials:'LF'},{id:'vrf_4b8e02',name:'Camila Oliveira',subject:'colab_005',status:'face_mismatch',date:'Hoje, 14:18:30',ms:1056,initials:'CO'}];
 let records=[...sample],identities=sample.map(x=>({id:x.subject,name:x.name,initials:x.initials}));
 let base='',token='',connected=false,route='',stream=null,recording=false,endpoint=0,activeSession=null;
+let faceGuide=null;
 let sessionGeneration=0,connectionGeneration=0,cameraGeneration=0,preparing=false;
 let selectedSubject='',identityLoadError='',referenceFile=null,referenceError='',referencePending=null,referenceGeneration=0,enrolling=false,identityGeneration=0;
 let toastTimer;
@@ -51,10 +52,12 @@ function verification(){
   ${refs.length?`<label>Rostos disponíveis<select id="choose-reference" class="field-input"><option value="">Selecione uma referência</option>${refs.map(x=>`<option value="${esc(x.id)}" ${x.id===selectedSubject?'selected':''}>${esc(x.name)} · ${esc(x.id)}</option>`).join('')}</select></label>`:''}
   <label class="check"><input type="checkbox" id="verify-consent"> A pessoa autorizou esta captura e o uso da biometria.</label>
   <button class="btn full" id="create-session">Preparar novo desafio</button><p class="api-status" id="session-status" role="status">O botão Gravar e verificar prepara a câmera e o desafio automaticamente.</p>
-  <hr class="separator"><h2>Como gravar</h2><p class="capture-guide">Mantenha o rosto iluminado e dentro da guia. Durante os 6 segundos, olhe ao centro e vire levemente para os lados conforme a instrução na câmera.</p>
+  <hr class="separator"><h2>Como gravar</h2><p class="capture-guide">Mantenha o rosto iluminado e dentro da guia. Depois da contagem, siga cada movimento por 2,4 segundos. Vire pouco e mantenha os olhos visíveis; não é necessário mostrar o rosto de perfil.</p>
   <div class="note">O motor é experimental. Uma correspondência exige revisão humana e não registra ponto automaticamente.</div></aside>
-  <section class="panel capture-panel"><div class="camera"><span class="camera-badge" id="camera-badge">CÂMERA DESLIGADA</span><video id="camera-video" autoplay muted playsinline class="hidden"></video><div class="camera-frame">${icon('face')}</div><p id="camera-instruction" role="status" aria-live="polite">Olhe para a câmera e mantenha o rosto no centro.</p></div>
-  <div class="camera-tools"><p>Vídeo de 6 segundos · sem áudio</p><div class="actions"><button class="btn" id="camera-toggle">${icon('camera')}Testar câmera</button><button class="btn primary" id="capture">Gravar e verificar</button></div></div>
+  <section class="panel capture-panel"><div class="camera" data-tracking="idle"><span class="camera-badge" id="camera-badge">CÂMERA DESLIGADA</span><video id="camera-video" autoplay muted playsinline class="hidden"></video><canvas id="face-overlay" aria-hidden="true"></canvas><div class="camera-frame">${icon('face')}</div><span id="mesh-status" class="mesh-status" role="status">Malha facial em tempo real</span></div>
+  <div class="motion-guide" id="motion-guide" data-action="center" data-phase="idle"><div class="pose-cue" aria-hidden="true"><svg viewBox="0 0 104 94" class="pose-diagram"><g class="pose-head"><ellipse cx="52" cy="44" rx="22" ry="30"/><path d="M37 40h7m16 0h7M52 39v13h5m-13 9q8 5 16 0M37 70v10m30-10v10"/><path class="pose-meridian" d="M52 14q-12 30 0 60"/></g><path class="pose-arrow left" d="M24 43H4m8-8-8 8 8 8"/><path class="pose-arrow right" d="M80 43h20m-8-8 8 8-8 8"/></svg></div><div class="motion-copy"><p id="camera-instruction" role="status" aria-live="polite">Olhe para o centro</p><p id="motion-detail">Siga a seta com a sua cabeça, sem sair da guia.</p><div class="motion-progress" aria-hidden="true"><span id="motion-progress-fill"></span></div></div><figure class="depth-tile"><canvas id="face-depth" aria-hidden="true"></canvas><figcaption>3D estimado</figcaption></figure></div>
+  <ol class="motion-steps" id="motion-steps" aria-label="Sequência dos movimentos"><li>Centro</li><li>Esquerda / direita</li><li>Outro lado</li></ol><p class="face-feedback" id="face-feedback" role="status" aria-live="polite">Ative a câmera para localizar os pontos do rosto.</p>
+  <div class="camera-tools"><p>Vídeo de 7,2 segundos · sem áudio</p><div class="actions"><button class="btn" id="camera-toggle">${icon('camera')}Testar câmera</button><button class="btn primary" id="capture">Gravar e verificar</button></div></div>
   <p id="capture-hint" class="capture-hint" role="status" aria-live="polite">Ao tocar em Gravar e verificar, permita o uso da câmera se o navegador solicitar.</p>
   <div id="verify-result" class="result-box hidden" role="status" aria-live="polite" tabindex="-1"></div></section></div>`;
 }
@@ -73,7 +76,7 @@ python -m backend.download_models
 uvicorn backend.main:app --host 0.0.0.0 --port 8000</code></pre><p class="form-note">Consulte o README para iniciar também o serviço de liveness na porta 8001.</p></section>`}
 function vision(){return title('Visão computacional','Rostos, objetos e ações em uma captura vinculada a um desafio.',`<button class="btn primary" data-route="verify">${icon('face')}Abrir captura</button>`)+`<div class="demo-banner">${icon('activity',15)}<span><strong>Motor próprio · experimental.</strong> Resultados exigem revisão até a validação ant fraude.</span></div><div class="two-col"><section class="panel settings-panel"><h2>O que o motor analisa</h2><p>O vídeo passa por etapas independentes. Detecção de objetos enriquece o contexto; ela não comprova prova de vida.</p><ul class="feature-list"><li>${icon('face')}Exatamente um rosto por captura<small>YuNet</small></li><li>${icon('activity')}Ordem dos movimentos solicitados<small>Desafio aleatório</small></li><li>${icon('camera')}Objetos presentes no ambiente<small>MobileNet SSD · 20 classes</small></li><li>${icon('shield')}Vínculo do resultado ao vídeo<small>SHA-256 + HMAC</small></li></ul><div class="note">Ações suportadas nesta versão: olhar ao centro e virar a cabeça para os dois lados. A análise usa a posição dos marcos faciais; não inclui detecção de piscadas.</div></section><section class="panel settings-panel"><h2>Um desafio diferente por sessão</h2><p>O servidor escolhe a sequência e mantém o desafio associado ao nonce. O cliente recebe as instruções, grava e envia o vídeo.</p><div class="action-list"><span class="action-tag">Olhe ao centro</span><span class="action-tag">Vire para a esquerda</span><span class="action-tag">Vire para a direita</span></div><hr class="separator"><h2>Próximos critérios de validação</h2><p>Medir ataques com foto impressa, tela, replay, máscaras e vídeos sintéticos; calibrar limiares e avaliar diferentes câmeras, iluminações e perfis de pessoas.</p><div class="info-row"><span>Uso inicial</span><b>Validação para ponto</b></div><div class="info-row"><span>Decisão automática</span><b>Bloqueada no modo experimental</b></div><div class="info-row"><span>Expansão</span><b>Autenticação e acesso</b></div></section></div>`}
 function architecture(){return title('Uma base preparada para evoluir','Avaliação técnica para biometria facial, ações e detecção de objetos.',`<button class="btn" data-route="api">${icon('arrow')}Voltar à API</button>`)+`<section class="panel settings-panel"><h2>Python + FastAPI <span class="tag">Escolha para o Verifica.ai</span></h2><p>O custo dominante é a inferência dos modelos. Python permite integrar OpenCV, ONNX Runtime e ferramentas de treinamento com menos atrito. O processamento pesado roda em código nativo e em trabalhadores separados.</p><div class="table-scroll"><table class="tech-table"><thead><tr><th>LINGUAGEM</th><th>PONTOS FORTES</th><th>CUSTO PARA ESTE PROJETO</th><th>INDICAÇÃO</th></tr></thead><tbody><tr><td><b>Python</b></td><td>Ecossistema de visão, experimentação e treinamento</td><td>Exige limitar concorrência e separar inferência da API</td><td>API e motor de visão inicial</td></tr><tr><td><b>Go</b></td><td>Concorrência, serviços leves e distribuição simples</td><td>Mais integração para modelos e pré-processamento</td><td>Gateway de alto volume após medição</td></tr><tr><td><b>Rust</b></td><td>Controle de memória e latência previsível</td><td>Maior esforço de desenvolvimento e integração de visão</td><td>Agentes locais e componentes críticos</td></tr><tr><td><b>C#</b></td><td>ASP.NET Core, ONNX Runtime e integrações empresariais</td><td>Menor variedade de ferramentas de pesquisa e treino</td><td>Boa opção para equipes .NET</td></tr></tbody></table></div><h2 class="margin-top">Otimização antes de escalar</h2><p>Upload binário, vídeo curto e sem áudio; no máximo oito quadros na comparação 1:1; resolução reduzida para inferência; modelos carregados uma vez por processo; concorrência limitada. O serviço de ações usa amostragem temporal própria. Testes de carga e calibração ainda são necessários: não há promessa de latência ou precisão nesta versão.</p></section>`}
-function stopCamera(){cameraGeneration++;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+function stopCamera(){faceGuide?.stop();faceGuide=null;cameraGeneration++;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
 function render(){const next=location.hash.slice(1)||'overview';if(route==='verify'){sessionGeneration++;activeSession=null;stopCamera();}route=next in routes||next==='architecture'?next:'overview';document.querySelector('#crumb').textContent=routes[route]?.[0]||'Arquitetura';document.querySelector('#nav').innerHTML=Object.entries(routes).map(([key,[label,i]])=>`<button data-route="${key}" class="nav-link ${route===key?'active':''}">${icon(i)}${label}${key==='api'?'<span class="badge">v1</span>':''}</button>`).join('');document.querySelector('#main').innerHTML=({overview,verify:verification,identities:identitiesPage,vision,api:apiPage,settings,architecture}[route])();bind();}
 function filterRows(){const query=(document.querySelector('#search-records')?.value||'').toLowerCase();const f=document.querySelector('#status-filter')?.value||'all';const rows=records.filter(x=>(x.name+' '+x.subject+' '+x.id).toLowerCase().includes(query)&&(f==='all'||(f==='failed'?x.status!=='approved':x.status==='approved')));document.querySelector('#record-rows').innerHTML=rowsHTML(rows);document.querySelector('#row-count').textContent=`${rows.length} verificações · ${rows.some(x=>x.source==='api')?'eventos da API':'dados sintéticos'}`;}
 function bind(){document.querySelector('#chart-period')?.addEventListener('change',e=>document.querySelector('#chart-area').innerHTML=chart(+e.target.value));document.querySelector('#search-records')?.addEventListener('input',filterRows);document.querySelector('#status-filter')?.addEventListener('change',filterRows);document.querySelector('#export')?.addEventListener('click',()=>{const csv='\uFEFFidentidade;identificador;resultado;tempo_ms;tipo\n'+records.map(x=>[x.name,x.subject,x.status,x.ms,x.source||'demonstracao'].join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='verifica-ai-verificacoes.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Exportação CSV concluída.')});document.querySelector('#refresh-events')?.addEventListener('click',async()=>{if(!connected)return goto('api');try{const out=await request('/api/v1/events');records=out.events.map(x=>({id:x.id,name:x.subject,subject:x.subject,status:x.status,date:new Date(x.created*1000).toLocaleString('pt-BR'),ms:x.elapsed,source:'api',backend:base,initials:x.subject.slice(0,2).toUpperCase()}));render();toast('Eventos atualizados da API.')}catch(e){toast(e.message)}});document.querySelector('#add-identity')?.addEventListener('click',openIdentityDialog);document.querySelector('#refresh-identities')?.addEventListener('click',refreshIdentities);document.querySelector('#choose-reference')?.addEventListener('change',e=>{const field=document.querySelector('#verify-subject');field.value=e.target.value;field.dispatchEvent(new Event('input'))});document.querySelector('#camera-toggle')?.addEventListener('click',toggleCamera);document.querySelector('#create-session')?.addEventListener('click',createSession);document.querySelector('#capture')?.addEventListener('click',capture);for(const selector of ['#verify-subject','#verify-consent'])document.querySelector(selector)?.addEventListener('input',()=>{selectedSubject=document.querySelector('#verify-subject').value.trim();sessionGeneration++;if(activeSession){activeSession=null;document.querySelector('#capture').disabled=false;document.querySelector('#session-status').textContent='Dados alterados. Crie uma nova sessão com a autorização atual.';document.querySelector('#camera-instruction').textContent='Crie uma nova sessão para receber o desafio.';document.querySelectorAll('.step').forEach((el,i)=>el.classList.toggle('active',i===0));}});document.querySelector('#simulate')?.addEventListener('click',()=>{showResult('Demonstração · revisão necessária','Rosto correspondente no exemplo. Desafio de movimentos concluído no exemplo. O motor experimental exige revisão humana; este resultado não valida uma pessoa real.');document.querySelectorAll('.step').forEach(x=>x.classList.add('active'))});document.querySelector('#copy-code')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(codeFor(endpoints[endpoint]));toast('Código copiado.')}catch{toast('Seu navegador bloqueou a cópia. Selecione o código e copie.')}});document.querySelector('#open-swagger')?.addEventListener('click',()=>{if(!base)return toast('Conecte o backend para acessar o Swagger.');window.open(base+'/docs','_blank','noopener,noreferrer')});document.querySelector('#run-api')?.addEventListener('click',async(e)=>{const out=document.querySelector('#playground-result');out.classList.remove('hidden');e.currentTarget.disabled=true;try{const subject=document.querySelector('#playground-subject').value;out.textContent=connected?JSON.stringify(await request('/api/v1/sessions','POST',{subject_id:subject,consent:true}),null,2):'SIMULAÇÃO — nenhuma requisição enviada\n'+JSON.stringify({...endpoints[0].response,subject_id:subject},null,2)}catch(err){out.textContent=err.message}finally{if(e.target.isConnected)e.target.disabled=false}});document.querySelector('#connection-form')?.addEventListener('submit',connect);document.querySelector('#disconnect')?.addEventListener('click',()=>{connectionGeneration++;identityGeneration++;base='';token='';connected=false;activeSession=null;selectedSubject='';identityLoadError='';records=[...sample];identities=sample.map(x=>({id:x.subject,name:x.name,initials:x.initials}));render();toast('Backend desconectado. Credenciais removidas da memória.')});}
@@ -83,6 +86,23 @@ function showResult(title,text,error=false,technical=null){
   el.scrollIntoView?.({behavior:'smooth',block:'nearest'});
 }
 function captureHint(text){const el=document.querySelector('#capture-hint');if(el)el.textContent=text}
+function setCaptureMotion(action,index=0,progress=0,phase='idle',challenge=null){
+  const guide=document.querySelector('#motion-guide');if(!guide)return;
+  if(guide.dataset.action!==action)guide.dataset.action=action;if(guide.dataset.phase!==phase)guide.dataset.phase=phase;
+  const instruction=document.querySelector('#camera-instruction'),label=actionLabel(action);if(instruction.textContent!==label)instruction.textContent=label;
+  const detail=document.querySelector('#motion-detail'),detailText=phase==='recording'?'Mantenha esta posição até o próximo movimento.':phase==='countdown'?'Prepare-se. A gravação começa depois da contagem.':'Vire levemente, mantendo os olhos visíveis.';if(detail.textContent!==detailText)detail.textContent=detailText;
+  document.querySelector('#motion-progress-fill').style.transform=`scaleX(${Math.max(0,Math.min(1,progress))})`;
+  const steps=document.querySelector('#motion-steps');
+  const signature=challenge?challenge.join('|')+':'+index:null;
+  if(challenge&&steps.dataset.sequence!==signature){steps.dataset.sequence=signature;steps.innerHTML=challenge.map((value,i)=>`<li ${i===index?'aria-current="step"':''} class="${i<index?'elapsed':''}">${esc({center:'Centro',turn_left:'Sua esquerda',turn_right:'Sua direita'}[value]||value)}</li>`).join('');}
+  faceGuide?.setTarget(phase==='recording'?action:null);
+}
+async function startFaceGuide(video){
+  faceGuide?.stop();faceGuide=null;
+  if(!window.VerificaFace){document.querySelector('#mesh-status').textContent='Malha indisponível · siga a guia animada';return}
+  faceGuide=new window.VerificaFace.FaceGuide({video,canvas:document.querySelector('#face-overlay'),depthCanvas:document.querySelector('#face-depth'),status:document.querySelector('#mesh-status'),feedback:document.querySelector('#face-feedback'),camera:document.querySelector('.capture-panel .camera')});
+  await faceGuide.start();
+}
 function actionLabel(action){return {center:'Olhe ao centro',turn_left:'Vire levemente para a esquerda',turn_right:'Vire levemente para a direita'}[action]||action}
 function validateVerification(){
   if(!connected)throw Error('Conecte a API em Configurações antes de verificar.');
@@ -110,6 +130,8 @@ async function startCamera(){
       video.addEventListener('loadeddata',ready);ready();
     });
     if(generation!==cameraGeneration||route!=='verify'){acquired.getTracks().forEach(t=>t.stop());return false}
+    await startFaceGuide(video);
+    if(generation!==cameraGeneration||route!=='verify'){acquired.getTracks().forEach(t=>t.stop());return false}
     document.querySelector('#camera-toggle').textContent='Desligar câmera';
     document.querySelector('#camera-badge').textContent='CÂMERA PRONTA';
     captureHint('Câmera pronta. O desafio será mostrado durante a gravação.');return true;
@@ -136,7 +158,7 @@ async function createSession(automatic=false){
     if(generation!==sessionGeneration||!sameConnection(context)||route!=='verify'||!button.isConnected||subject.value.trim()!==requestedSubject||!consent.checked)return null;
     activeSession={...result,subject_id:requestedSubject};
     document.querySelector('#session-status').textContent='Desafio preparado. A sessão vale por 120 segundos.';
-    document.querySelector('#camera-instruction').textContent=result.challenge.map(actionLabel).join(' → ');
+    setCaptureMotion('center',0,0,'idle',result.challenge);
     document.querySelectorAll('.step')[1].classList.add('active');return activeSession;
   }catch(error){
     if(button.isConnected&&generation===sessionGeneration){document.querySelector('#session-status').textContent=error.message;showResult('Não foi possível preparar o desafio',error.message,true);captureHint(error.message)}return null;
@@ -146,7 +168,9 @@ async function capture(){
   if(recording||preparing){captureHint('Aguarde: a verificação já está em andamento.');return}
   const button=document.querySelector('#capture'),cameraButton=document.querySelector('#camera-toggle'),sessionButton=document.querySelector('#create-session');
   const context={base,token};preparing=true;button.disabled=true;cameraButton.disabled=true;sessionButton.disabled=true;
-  let recorder,timer,instructions,watchdog;
+  let recorder,timer,instructions,watchdog,leadIn,interrupted=false;
+  const onHidden=()=>{if(document.hidden&&recording){interrupted=true;if(recorder&&recorder.state!=='inactive')recorder.stop()}};
+  document.addEventListener('visibilitychange',onHidden);
   try{
     const subject=validateVerification();
     document.querySelector('#verify-subject').disabled=true;document.querySelector('#verify-consent').disabled=true;if(document.querySelector('#choose-reference'))document.querySelector('#choose-reference').disabled=true;
@@ -162,6 +186,13 @@ async function capture(){
     const session={...activeSession};
     document.querySelector('#verify-subject').disabled=true;document.querySelector('#verify-consent').disabled=true;sessionButton.disabled=true;
     preparing=false;recording=true;document.querySelector('#verify-result').classList.add('hidden');document.querySelector('.capture-panel').scrollIntoView?.({behavior:'smooth',block:'start'});
+    button.textContent='Prepare-se…';captureHint('Prepare-se para o primeiro movimento. A gravação começa após a contagem.');setCaptureMotion('center',0,0,'countdown',session.challenge);
+    recording=false;preparing=true;const countdownStarted=Date.now();
+    leadIn=setInterval(()=>{if(button.isConnected)document.querySelector('#camera-badge').textContent='COMEÇANDO EM '+Math.max(1,Math.ceil((2000-(Date.now()-countdownStarted))/1000))},100);
+    document.querySelector('#camera-badge').textContent='COMEÇANDO EM 2';
+    await new Promise(resolve=>setTimeout(resolve,2000));clearInterval(leadIn);
+    if(!button.isConnected||!sameConnection(context)||route!=='verify'||document.hidden)throw Error('Mantenha esta tela aberta para iniciar a gravação.');
+    preparing=false;recording=true;captureHint('Siga o desenho e a seta. Mantenha o rosto inteiro na imagem e os olhos visíveis.');
     const chunks=[];
     const blob=await new Promise((resolve,reject)=>{
       recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:650000});
@@ -172,16 +203,17 @@ async function capture(){
       const started=Date.now();
       function update(){
         if(!button.isConnected||route!=='verify'){if(recorder.state!=='inactive')recorder.stop();return}
-        const elapsed=Date.now()-started,index=Math.min(2,Math.floor(elapsed/2000));
-        document.querySelector('#camera-instruction').textContent=actionLabel(session.challenge[index]);
-        document.querySelector('#camera-badge').textContent='GRAVANDO · '+Math.max(1,Math.ceil((6000-elapsed)/1000))+' s';
-        button.textContent='Gravando… '+Math.max(1,Math.ceil((6000-elapsed)/1000))+' s';
+        const elapsed=Date.now()-started,index=Math.min(2,Math.floor(elapsed/2400));
+        setCaptureMotion(session.challenge[index],index,(elapsed-index*2400)/2400,'recording',session.challenge);
+        document.querySelector('#camera-badge').textContent='GRAVANDO · '+Math.max(1,Math.ceil((7200-elapsed)/1000))+' s';
+        button.textContent='Gravando… '+Math.max(1,Math.ceil((7200-elapsed)/1000))+' s';
       }
       update();instructions=setInterval(update,200);
-      timer=setTimeout(()=>{if(recorder.state!=='inactive')recorder.stop()},6000);
-      watchdog=setTimeout(()=>reject(Error('A gravação não terminou. Feche e abra a câmera para tentar novamente.')),10000);
+      timer=setTimeout(()=>{if(recorder.state!=='inactive')recorder.stop()},7200);
+      watchdog=setTimeout(()=>reject(Error('A gravação não terminou. Feche e abra a câmera para tentar novamente.')),12000);
     });
     clearInterval(instructions);clearTimeout(watchdog);
+    if(interrupted)throw Error('A gravação foi interrompida. Mantenha o navegador em primeiro plano e tente novamente.');
     if(!blob.size)throw Error('A câmera gerou um vídeo vazio. Tente novamente com o navegador em primeiro plano.');
     if(blob.size>8*1024*1024)throw Error('O vídeo excedeu 8 MiB. Tente novamente.');
     if(route!=='verify'||activeSession?.session_id!==session.session_id||!sameConnection(context))throw Error('A verificação foi interrompida. Prepare um novo desafio.');
@@ -195,7 +227,7 @@ async function capture(){
     document.querySelectorAll('.step').forEach(step=>step.classList.add('active'));captureHint('Verificação concluída. Para repetir, toque em Gravar e verificar.');
   }catch(error){if(button.isConnected){showResult('Não foi possível verificar',error.message,true);captureHint(error.message)}}
   finally{
-    clearTimeout(timer);clearTimeout(watchdog);clearInterval(instructions);
+    clearTimeout(timer);clearTimeout(watchdog);clearInterval(instructions);clearInterval(leadIn);document.removeEventListener('visibilitychange',onHidden);setCaptureMotion('center');
     if(recorder&&recorder.state!=='inactive')recorder.stop();
     recording=false;preparing=false;activeSession=null;
     if(button.isConnected){button.disabled=false;button.textContent='Gravar e verificar';cameraButton.disabled=false;sessionButton.disabled=false;document.querySelector('#session-status').textContent='A próxima gravação receberá um novo desafio.';document.querySelector('#verify-subject').disabled=false;document.querySelector('#verify-consent').disabled=false;if(document.querySelector('#choose-reference'))document.querySelector('#choose-reference').disabled=false;document.querySelector('#camera-badge').textContent=stream?'CÂMERA PRONTA':'CÂMERA DESLIGADA'}

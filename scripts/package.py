@@ -1,4 +1,4 @@
-"""Create a source download without secrets, models, local state or git metadata."""
+"""Package source and browser assets without secrets, backend models or local state."""
 from pathlib import Path
 import zipfile
 

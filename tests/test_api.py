@@ -161,7 +161,7 @@ def test_pad_rejects_tampered_signature(client, monkeypatch):
 
 
 def test_local_console_assets(client):
-    for path in ('/', '/style.css', '/app.js', '/openapi.json'):
+    for path in ('/', '/style.css', '/app.js', '/face/guide.js', '/face/worker.js', '/face/manifest.json', '/openapi.json'):
         assert client.get(path).status_code == 200
 
 
@@ -196,3 +196,13 @@ def test_existing_database_migration_preserves_templates(tmp_path, monkeypatch):
     with main.db() as db:
         record = dict(db.execute('SELECT * FROM subjects').fetchone())
     assert record == {'id': 'old_person', 'template': b'encrypted-reference', 'created': 1, 'display_name': ''}
+
+
+def test_public_tracking_assets_revalidate_but_credentials_and_app_do_not_cache(client):
+    response = client.get('/face/vision_bundle.mjs')
+    assert response.status_code == 200
+    assert response.headers['cache-control'] == 'public, max-age=0, must-revalidate'
+    cached = client.get('/face/vision_bundle.mjs', headers={'If-None-Match': response.headers['etag']})
+    assert cached.status_code == 304
+    for path in ('/face/guide.js', '/face/worker.js', '/api/v1/events'):
+        assert client.get(path, headers=AUTH).headers['cache-control'] == 'no-store'

@@ -128,7 +128,10 @@ async def body_limit(request: Request, call_next):
             from fastapi.responses import JSONResponse
             return JSONResponse({'detail': 'Content-Length inválido.'}, status_code=400)
     response = await call_next(request)
-    response.headers['Cache-Control'] = 'no-store'
+    path = request.url.path
+    public_face_asset = path.startswith('/face/') and (
+        path.endswith(('.wasm', '.mjs', '.task')) or path.rsplit('/', 1)[-1].startswith('vision_wasm_'))
+    response.headers['Cache-Control'] = 'public, max-age=0, must-revalidate' if public_face_asset else 'no-store'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     return response
 
@@ -289,6 +292,7 @@ def delete_subject(subject_id: str):
         c.execute('DELETE FROM events WHERE subject=?', (subject_id,))
 
 
+app.mount('/face', StaticFiles(directory=ROOT / 'dist' / 'face'), name='face-guidance')
 app.mount('/assets', StaticFiles(directory=ROOT / 'dist'), name='assets')
 
 

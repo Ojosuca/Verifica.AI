@@ -7,7 +7,7 @@ const root=resolve(__dirname,'..');
 const tick=()=>new Promise(r=>setTimeout(r,10));
 
 function setup(){
-  const dom=new JSDOM(readFileSync(resolve(root,'dist/index.html'),'utf8'),{url:'https://console.example/#overview',runScripts:'outside-only'});
+  const dom=new JSDOM(readFileSync(resolve(root,'dist/index.html'),'utf8'),{url:'https://console.example/#overview',runScripts:'outside-only',pretendToBeVisual:true});
   const w=dom.window,calls=[];
   w.confirm=()=>true;
   w.HTMLDialogElement.prototype.showModal=function(){this.open=true};
@@ -130,7 +130,7 @@ function fakeCamera(w,{denied=false,mp4=false}={}){
     stop(){this.state='inactive';this.ondataavailable({data:new w.Blob(['video'],{type:this.type})});this.onstop()}
   };
   const schedule=w.setTimeout.bind(w);
-  w.setTimeout=(callback,delay,...args)=>schedule(callback,delay===6000?1:delay,...args);
+  w.setTimeout=(callback,delay,...args)=>schedule(callback,(delay===7200||delay===2000)?1:delay,...args);
   return track;
 }
 
