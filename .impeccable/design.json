@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-09T17:51:52.269836+00:00",
+  "title": "Design System: Verifica.ai Identidade",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0029 264.54)",
+          "oklch(27% 0.0029 264.54)",
+          "oklch(38% 0.0029 264.54)",
+          "oklch(50% 0.0029 264.54)",
+          "oklch(61% 0.0029 264.54)",
+          "oklch(73% 0.0029 264.54)",
+          "oklch(84% 0.0029 264.54)",
+          "oklch(95% 0.0029 264.54)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(27% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(50% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(73% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0266 183.78)",
+          "oklch(27% 0.0266 183.78)",
+          "oklch(38% 0.0266 183.78)",
+          "oklch(50% 0.0266 183.78)",
+          "oklch(61% 0.0266 183.78)",
+          "oklch(73% 0.0266 183.78)",
+          "oklch(84% 0.0266 183.78)",
+          "oklch(95% 0.0266 183.78)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15% 0.0202 169.51)",
+          "oklch(27% 0.0202 169.51)",
+          "oklch(38% 0.0202 169.51)",
+          "oklch(50% 0.0202 169.51)",
+          "oklch(61% 0.0202 169.51)",
+          "oklch(73% 0.0202 169.51)",
+          "oklch(84% 0.0202 169.51)",
+          "oklch(95% 0.0202 169.51)"
+        ]
+      },
+      "brand": {
+        "role": "primary",
+        "displayName": "Brand",
+        "tonalRamp": [
+          "oklch(15% 0.0840 168.81)",
+          "oklch(27% 0.0840 168.81)",
+          "oklch(38% 0.0840 168.81)",
+          "oklch(50% 0.0840 168.81)",
+          "oklch(61% 0.0840 168.81)",
+          "oklch(73% 0.0840 168.81)",
+          "oklch(84% 0.0840 168.81)",
+          "oklch(95% 0.0840 168.81)"
+        ]
+      },
+      "sidebar": {
+        "role": "primary",
+        "displayName": "Sidebar",
+        "tonalRamp": [
+          "oklch(15% 0.0351 176.97)",
+          "oklch(27% 0.0351 176.97)",
+          "oklch(38% 0.0351 176.97)",
+          "oklch(50% 0.0351 176.97)",
+          "oklch(61% 0.0351 176.97)",
+          "oklch(73% 0.0351 176.97)",
+          "oklch(84% 0.0351 176.97)",
+          "oklch(95% 0.0351 176.97)"
+        ]
+      },
+      "mint": {
+        "role": "primary",
+        "displayName": "Mint",
+        "tonalRamp": [
+          "oklch(15% 0.0421 154.98)",
+          "oklch(27% 0.0421 154.98)",
+          "oklch(38% 0.0421 154.98)",
+          "oklch(50% 0.0421 154.98)",
+          "oklch(61% 0.0421 154.98)",
+          "oklch(73% 0.0421 154.98)",
+          "oklch(84% 0.0421 154.98)",
+          "oklch(95% 0.0421 154.98)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15% 0.0067 160.07)",
+          "oklch(27% 0.0067 160.07)",
+          "oklch(38% 0.0067 160.07)",
+          "oklch(50% 0.0067 160.07)",
+          "oklch(61% 0.0067 160.07)",
+          "oklch(73% 0.0067 160.07)",
+          "oklch(84% 0.0067 160.07)",
+          "oklch(95% 0.0067 160.07)"
+        ]
+      },
+      "brand-hover": {
+        "role": "primary",
+        "displayName": "Brand Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0742 166.77)",
+          "oklch(27% 0.0742 166.77)",
+          "oklch(38% 0.0742 166.77)",
+          "oklch(50% 0.0742 166.77)",
+          "oklch(61% 0.0742 166.77)",
+          "oklch(73% 0.0742 166.77)",
+          "oklch(84% 0.0742 166.77)",
+          "oklch(95% 0.0742 166.77)"
+        ]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Focus",
+        "tonalRamp": [
+          "oklch(15% 0.1002 165.89)",
+          "oklch(27% 0.1002 165.89)",
+          "oklch(38% 0.1002 165.89)",
+          "oklch(50% 0.1002 165.89)",
+          "oklch(61% 0.1002 165.89)",
+          "oklch(73% 0.1002 165.89)",
+          "oklch(84% 0.1002 165.89)",
+          "oklch(95% 0.1002 165.89)"
+        ]
+      },
+      "success-bg": {
+        "role": "secondary",
+        "displayName": "Success Bg",
+        "tonalRamp": [
+          "oklch(15% 0.0133 152.60)",
+          "oklch(27% 0.0133 152.60)",
+          "oklch(38% 0.0133 152.60)",
+          "oklch(50% 0.0133 152.60)",
+          "oklch(61% 0.0133 152.60)",
+          "oklch(73% 0.0133 152.60)",
+          "oklch(84% 0.0133 152.60)",
+          "oklch(95% 0.0133 152.60)"
+        ]
+      },
+      "success-ink": {
+        "role": "secondary",
+        "displayName": "Success Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0910 153.36)",
+          "oklch(27% 0.0910 153.36)",
+          "oklch(38% 0.0910 153.36)",
+          "oklch(50% 0.0910 153.36)",
+          "oklch(61% 0.0910 153.36)",
+          "oklch(73% 0.0910 153.36)",
+          "oklch(84% 0.0910 153.36)",
+          "oklch(95% 0.0910 153.36)"
+        ]
+      },
+      "failure-bg": {
+        "role": "secondary",
+        "displayName": "Failure Bg",
+        "tonalRamp": [
+          "oklch(15% 0.0155 27.28)",
+          "oklch(27% 0.0155 27.28)",
+          "oklch(38% 0.0155 27.28)",
+          "oklch(50% 0.0155 27.28)",
+          "oklch(61% 0.0155 27.28)",
+          "oklch(73% 0.0155 27.28)",
+          "oklch(84% 0.0155 27.28)",
+          "oklch(95% 0.0155 27.28)"
+        ]
+      },
+      "failure-ink": {
+        "role": "secondary",
+        "displayName": "Failure Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0960 28.58)",
+          "oklch(27% 0.0960 28.58)",
+          "oklch(38% 0.0960 28.58)",
+          "oklch(50% 0.0960 28.58)",
+          "oklch(61% 0.0960 28.58)",
+          "oklch(73% 0.0960 28.58)",
+          "oklch(84% 0.0960 28.58)",
+          "oklch(95% 0.0960 28.58)"
+        ]
+      },
+      "pending-bg": {
+        "role": "secondary",
+        "displayName": "Pending Bg",
+        "tonalRamp": [
+          "oklch(15% 0.0212 85.94)",
+          "oklch(27% 0.0212 85.94)",
+          "oklch(38% 0.0212 85.94)",
+          "oklch(50% 0.0212 85.94)",
+          "oklch(61% 0.0212 85.94)",
+          "oklch(73% 0.0212 85.94)",
+          "oklch(84% 0.0212 85.94)",
+          "oklch(95% 0.0212 85.94)"
+        ]
+      },
+      "pending-ink": {
+        "role": "secondary",
+        "displayName": "Pending Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0841 77.72)",
+          "oklch(27% 0.0841 77.72)",
+          "oklch(38% 0.0841 77.72)",
+          "oklch(50% 0.0841 77.72)",
+          "oklch(61% 0.0841 77.72)",
+          "oklch(73% 0.0841 77.72)",
+          "oklch(84% 0.0841 77.72)",
+          "oklch(95% 0.0841 77.72)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Métricas",
+        "purpose": "Números principais do dashboard."
+      },
+      "headline": {
+        "displayName": "Página",
+        "purpose": "Título principal de página."
+      }
+    },
+    "shadows": [
+      {
+        "name": "toast",
+        "value": "0 8px 24px #102b2526",
+        "purpose": "Separar feedback temporário do conteúdo."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-state",
+        "value": "background .16s, color .16s",
+        "purpose": "Estado de botões."
+      },
+      {
+        "name": "toast",
+        "value": "opacity .2s, transform .2s",
+        "purpose": "Entrada e saída do feedback temporário."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1500px"
+      },
+      {
+        "name": "compact-desktop",
+        "value": "1150px"
+      },
+      {
+        "name": "horizontal-navigation",
+        "value": "850px"
+      },
+      {
+        "name": "mobile",
+        "value": "580px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ação principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal compacta do console.",
+      "html": "<button class=\"ds-btn\">Nova verificação <svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg></button>",
+      "css": ".ds-btn{font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand,#12644d);color:var(--surface,#fff);border:1px solid var(--brand,#12644d);padding:10px 14px;border-radius:7px;min-height:38px;font-size:12px;font-weight:550;cursor:pointer;transition:background .16s,color .16s}.ds-btn:hover{background:#0b503b}.ds-btn:focus-visible{outline:2px solid var(--focus,#258363);outline-offset:4px;}.ds-btn:disabled{opacity:.5;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-btn{transition:none}}"
+    },
+    {
+      "name": "Campo de identificação",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Rótulo acima do campo e foco visível.",
+      "html": "<label class=\"ds-label\">Identificador da pessoa<input class=\"ds-input\" placeholder=\"Ex.: colab_001\"></label>",
+      "css": ".ds-label{font-family:'DM Sans',sans-serif;display:block;color:#54675a;font-size:11px;font-weight:500;max-width:320px}.ds-input{font-family:'DM Sans',sans-serif;display:block;width:100%;margin-top:8px;padding:11px 12px;border:1px solid #dce4dd;border-radius:6px;min-height:40px;background:var(--surface,#fff);color:#243d2c;font-size:14px}.ds-input::placeholder{color:#637168}.ds-input:focus-visible{outline:2px solid var(--focus,#258363);outline-offset:4px;}"
+    },
+    {
+      "name": "Navegação selecionada",
+      "kind": "nav",
+      "refersTo": "navigation-active",
+      "description": "Item ativo em menta sobre navegação escura.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Plataforma\"><button class=\"ds-nav-item ds-nav-active\" aria-current=\"page\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>Visão geral</button><button class=\"ds-nav-item\">Verificação 1:1</button></nav>",
+      "css": ".ds-nav{display:grid;gap:6px;background:var(--sidebar,#102b25);padding:20px;width:246px}.ds-nav-item{font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:12px;padding:12px;border:0;border-radius:7px;background:transparent;color:#b8cdc1;text-align:left;font-size:13px;cursor:pointer;transition:background .16s,color .16s}.ds-nav-item:hover{background:#1c3a30}.ds-nav-item.ds-nav-active{background:var(--mint,#d5f3de);color:#174733;font-weight:650}.ds-nav-item:focus-visible{outline:2px solid var(--focus,#258363);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-nav-item{transition:none}}"
+    },
+    {
+      "name": "Estados de resultado",
+      "kind": "chip",
+      "refersTo": "status-success",
+      "description": "Rótulos favorável, falha e revisão; a cor acompanha texto.",
+      "html": "<div class=\"ds-statuses\"><span class=\"ds-status\">Aprovada</span><span class=\"ds-status ds-failed\">Não corresponde</span><span class=\"ds-status ds-pending\">Revisão necessária</span></div>",
+      "css": ".ds-statuses{display:flex;gap:8px;flex-wrap:wrap}.ds-status{font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:5px;font-size:9px;background:#edf6ef;color:#35734b}.ds-status:before{content:\"\";width:4px;height:4px;border-radius:50%;background:currentColor}.ds-failed{background:#fbedeb;color:#924c43}.ds-pending{background:#fbf4e5;color:#7d5c24}"
+    },
+    {
+      "name": "Painel de conteúdo",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Superfície plana para dados e avisos contextualizados.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><h2>Atividade de verificações</h2><p>Volume de solicitações ao longo do tempo</p></div><p class=\"ds-panel-content\">Dados de demonstração · verificação facial 1:1</p></section>",
+      "css": ".ds-panel{font-family:'DM Sans',sans-serif;background:var(--surface,#fff);border:1px solid var(--line,#e5eae7);border-radius:var(--radius,12px);overflow:hidden;max-width:480px;color:var(--ink,#172b28)}.ds-panel-head{padding:21px 23px 0}.ds-panel-head h2{font-size:14px;font-weight:600;margin:0}.ds-panel-head p{color:var(--muted,#64736d);font-size:11px;margin:6px 0 0}.ds-panel-content{padding:12px 23px;margin:22px 0 0;border-top:1px solid #eff2ef;font-size:10px;color:#626f66}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Console de operações",
+    "overview": "Console operacional em português, com navegação verde escura e área de trabalho clara. A informação é compacta e organizada por painéis, tabelas e etapas; a cor de ação identifica o próximo passo e a menta marca a navegação selecionada.\n\nEstados sintéticos e experimentais devem permanecer explícitos. A apresentação visual de um resultado não substitui a revisão exigida pelo produto.",
+    "keyCharacteristics": [
+      "Navegação escura, conteúdo claro.",
+      "Densidade de console com títulos curtos e números tabulares.",
+      "Painéis planos, bordas finas e seleção em menta.",
+      "Demonstração, conexão e revisão identificadas em texto."
+    ],
+    "rules": [
+      {
+        "name": "Estado explícito",
+        "body": "Cor acompanha o texto do estado e nunca transforma uma demonstração ou resultado experimental em aprovação de produção.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do manter rótulos de demonstração e dados sintéticos junto aos resultados ilustrativos.",
+      "Do combinar cor de estado com texto e preservar o contorno de foco.",
+      "Do usar painéis brancos com bordas sutis e títulos compactos.",
+      "Do permitir rolagem horizontal em tabelas e navegação móvel."
+    ],
+    "donts": [
+      "Don't apresentar métricas sintéticas como medições do backend.",
+      "Don't usar um estado verde para omitir a revisão humana do motor experimental.",
+      "Don't aplicar sombras decorativas aos painéis de conteúdo.",
+      "Don't substituir a tipografia implementada por Inter sem uma decisão de redesign."
+    ]
+  }
+}
